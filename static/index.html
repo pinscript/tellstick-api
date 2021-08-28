@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Simple Tellstick GUI</title>
+		<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+	<body class="antialiased font-sans bg-gray-200 overflow-hidden">
+			<div id="app" class="p-8">
+					<ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+							<li v-for="(device) in devices" :key="device.id" class="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200">
+									<div class="w-full flex items-center justify-between p-6 space-x-6">
+											<div class="flex-1 truncate">
+													{{ device.name }}
+											</div>
+											<i class="fas fa-lightbulb" :class="{'text-yellow-200': device.lastsentcommand == 'ON'}" style="font-size: 40px;"></i>
+									</div>
+									<div>
+											<div class="-mt-px flex divide-x divide-gray-200">
+													<div class="w-0 flex-1 flex">
+															<a @click="deviceOn(device)" href="#" class="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500">
+																	<span class="ml-3">On</span>
+															</a>
+													</div>
+													<div class="-ml-px w-0 flex-1 flex">
+															<a @click="deviceOff(device)" href="#" class="relative w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-br-lg hover:text-gray-500">
+																	<span class="ml-3">Off</span>
+															</a>
+													</div>
+											</div>
+									</div>
+							</li>
+					</ul>
+			</div>
+	</body>
+	<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+	<script type="text/javascript">
+		var deviceOn = (device) => fetch('/device/on/' + device.id).then(() => device.lastsentcommand = 'ON');
+		var deviceOff = (device) => fetch('/device/off/' + device.id).then(() => device.lastsentcommand = 'OFF');
+
+		document.addEventListener("DOMContentLoaded", () => {
+				new Vue({
+					el: '#app',
+					data: { devices: [] },
+					mounted: function() {
+						fetch('/device/list').then(res => res.json()).then(json => {
+							this.devices = json.devices;
+						})
+					},
+					methods: {
+						deviceOn: deviceOn,
+						deviceOff: deviceOff
+					}
+				});
+		});
+	</script>
+</html>
